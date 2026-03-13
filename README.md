@@ -2,7 +2,6 @@
 
 A simple Python script to convert [PMTiles](https://protomaps.com/docs/pmtiles) archives to [MBTiles](https://github.com/mapbox/mbtiles-spec) (SQLite) format, preserving all metadata and correctly converting tile coordinates between the two schemes.
 
----
 
 ## Features
 
@@ -13,7 +12,6 @@ A simple Python script to convert [PMTiles](https://protomaps.com/docs/pmtiles) 
 - Commits every 500 tiles so partial output is usable if interrupted
 - Warns if the source contains vector (pbf) data that raster tools cannot use
 
----
 
 ## Requirements
 
@@ -26,7 +24,6 @@ Install the dependency:
 pip install pmtiles
 ```
 
----
 
 ## Usage
 
@@ -48,7 +45,6 @@ The output MBTiles file will be written to the same directory as the input, with
 Nepal_border.pmtiles  →  Nepal_border.mbtiles
 ```
 
----
 
 ## Example Output
 
@@ -64,7 +60,6 @@ Detected tile format: webp (raw: TileType.WEBP)
 Done — 8705 tiles written to Nepal_border.mbtiles
 ```
 
----
 
 ## Supported Tile Formats
 
@@ -78,7 +73,6 @@ Done — 8705 tiles written to Nepal_border.mbtiles
 
 > **Note:** WebP MBTiles support varies by application. If your tool does not render WebP tiles, you will need to transcode to PNG/JPEG using [Pillow](https://pillow.readthedocs.io/) as a post-processing step.
 
----
 
 ## Downstream Usage
 
@@ -95,7 +89,6 @@ gdal_translate Nepal_border.mbtiles Nepal_border.tif -of GTiff
 gdal_translate Nepal_border.mbtiles Nepal_border.tif -of COG -co COMPRESS=DEFLATE
 ```
 
----
 
 ## Coordinate System Note
 
@@ -105,7 +98,6 @@ PMTiles stores tiles in **XYZ** order (origin top-left), while MBTiles uses **TM
 flipped_y = (1 << z) - 1 - y
 ```
 
----
 
 ## Limitations
 
@@ -113,7 +105,6 @@ flipped_y = (1 << z) - 1 - y
 - No tile transcoding (WebP → PNG etc.) — the tile data is copied as-is.
 - Tested with PMTiles spec version 3.
 
----
 
 ## Related Tools
 
@@ -122,7 +113,6 @@ flipped_y = (1 << z) - 1 - y
 - [GDAL](https://gdal.org/) — geospatial raster/vector conversion
 - [MapTiler](https://www.maptiler.com/) — tile hosting and conversion
 
----
 
 ## Licence
 
