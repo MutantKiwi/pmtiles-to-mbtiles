@@ -1,4 +1,6 @@
 import os
+import sys
+import glob
 import sqlite3
 from pmtiles.reader import Reader, MmapSource, all_tiles
 
@@ -28,7 +30,7 @@ def get_tile_format(tile_type):
 
 def pmtiles_to_mbtiles(input_path):
     """
-    Convert a PMTiles file to an MBTiles (SQLite) file.
+    Convert a single PMTiles file to an MBTiles (SQLite) file.
     The output file is written to the same directory as the input,
     with the same base name and a .mbtiles extension.
     """
@@ -52,7 +54,7 @@ def pmtiles_to_mbtiles(input_path):
         # --- Tile format detection ---
         tile_type_id = header.get("tile_type", 0)
         tile_format  = get_tile_format(tile_type_id)
-        print(f"Detected tile format: {tile_format} (raw: {tile_type_id})")
+        print(f"  Detected tile format: {tile_format} (raw: {tile_type_id})")
 
         if tile_format == "unknown":
             raise ValueError(f"Unrecognised tile type '{tile_type_id}' — cannot proceed.")
@@ -60,7 +62,7 @@ def pmtiles_to_mbtiles(input_path):
         if tile_format == "pbf":
             # PBF/MVT is vector, not raster — MBTiles will store it fine but
             # GDAL and other raster tools will not be able to consume it.
-            print("WARNING: pbf is vector data — MBTiles will store it correctly but "
+            print("  WARNING: pbf is vector data — MBTiles will store it correctly but "
                   "GDAL/raster tools won't be able to use it.")
 
         # --- Extract metadata from header ---
@@ -134,7 +136,94 @@ def pmtiles_to_mbtiles(input_path):
         # Final commit and close
         con.commit()
         con.close()
-        print(f"Done — {count} tiles written to {output_path}")
+        print(f"  Done — {count} tiles written to {output_path}")
+
+    return output_path
 
 
-pmtiles_to_mbtiles("Nepal_border.pmtiles")
+def convert_folder(folder_path):
+    """
+    Convert all PMTiles files in a folder to MBTiles.
+    Skips files that already have a matching .mbtiles output.
+    Reports a summary of successes and failures at the end.
+    """
+    # Find all .pmtiles files in the folder (non-recursive)
+    pattern = os.path.join(folder_path, "*.pmtiles")
+    files   = sorted(glob.glob(pattern))
+
+    if not files:
+        print(f"No .pmtiles files found in: {folder_path}")
+        return
+
+    print(f"Found {len(files)} PMTiles file(s) in: {folder_path}\n")
+
+    succeeded = []
+    failed    = []
+    skipped   = []
+
+    for i, input_path in enumerate(files, 1):
+        output_path = os.path.splitext(input_path)[0] + ".mbtiles"
+        filename    = os.path.basename(input_path)
+
+        print(f"[{i}/{len(files)}] {filename}")
+
+        # Skip if output already exists — remove this block to always overwrite
+        if os.path.exists(output_path):
+            print(f"  Skipping — {os.path.basename(output_path)} already exists.")
+            skipped.append(filename)
+            print()
+            continue
+
+        try:
+            pmtiles_to_mbtiles(input_path)
+            succeeded.append(filename)
+        except Exception as e:
+            # Log the error but continue processing remaining files
+            print(f"  ERROR: {e}")
+            failed.append((filename, str(e)))
+
+        print()
+
+    # --- Summary ---
+    print("=" * 60)
+    print(f"Conversion complete.")
+    print(f"  Succeeded : {len(succeeded)}")
+    print(f"  Skipped   : {len(skipped)}")
+    print(f"  Failed    : {len(failed)}")
+
+    if failed:
+        print("\nFailed files:")
+        for name, error in failed:
+            print(f"  {name}: {error}")
+
+
+# --- Entry point ---
+# Run against a single file or a folder, based on what is provided.
+# Usage:
+#   python pmtiles2mbtiles.py                        ← converts current folder
+#   python pmtiles2mbtiles.py myfile.pmtiles         ← converts single file
+#   python pmtiles2mbtiles.py "C:\path\to\folder"   ← converts all in folder
+
+if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        # No argument — convert all PMTiles in the current working directory
+        convert_folder(".")
+
+    elif len(sys.argv) == 2:
+        target = sys.argv[1]
+
+        if os.path.isdir(target):
+            # Argument is a folder — batch convert
+            convert_folder(target)
+
+        elif os.path.isfile(target) and target.endswith(".pmtiles"):
+            # Argument is a single PMTiles file
+            pmtiles_to_mbtiles(target)
+
+        else:
+            print(f"Error: '{target}' is not a .pmtiles file or a valid folder.")
+            sys.exit(1)
+
+    else:
+        print("Usage: python pmtiles2mbtiles.py [file.pmtiles | folder]")
+        sys.exit(1)
