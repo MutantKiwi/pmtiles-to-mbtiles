@@ -28,13 +28,7 @@ pip install pmtiles
 
 ## Usage
 
-Edit the last line of the script to point to your input file:
-
-```python
-pmtiles_to_mbtiles("your_file.pmtiles")
-```
-
-Then run:
+Run:
 
 ```bash
 python pmtiles2mbtiles.py
@@ -43,7 +37,7 @@ python pmtiles2mbtiles.py
 The output MBTiles file will be written to the same directory as the input, with the same base name:
 
 ```
-Nepal_border.pmtiles  →  Nepal_border.mbtiles
+example.pmtiles  →  example.mbtiles
 ```
 
 
@@ -58,7 +52,7 @@ Detected tile format: webp (raw: TileType.WEBP)
   500 tiles written...
   1000 tiles written...
   ...
-Done — 8705 tiles written to Nepal_border.mbtiles
+Done — 8705 tiles written to example.mbtiles
 ```
 
 
@@ -81,13 +75,13 @@ Once converted, the MBTiles file can be used directly with GDAL:
 
 ```bash
 # Inspect
-gdalinfo Nepal_border.mbtiles
+gdalinfo example.mbtiles
 
 # Export to GeoTIFF
-gdal_translate Nepal_border.mbtiles Nepal_border.tif -of GTiff
+gdal_translate example.mbtiles example.tif -of GTiff
 
 # Export to Cloud-Optimised GeoTIFF
-gdal_translate Nepal_border.mbtiles Nepal_border.tif -of COG -co COMPRESS=DEFLATE
+gdal_translate example.mbtiles example.tif -of COG -co COMPRESS=DEFLATE
 ```
 
 
@@ -112,7 +106,6 @@ flipped_y = (1 << z) - 1 - y
 - [go-pmtiles](https://github.com/protomaps/go-pmtiles) — official PMTiles CLI (Go)
 - [pmtiles Python library](https://pypi.org/project/pmtiles/) — PMTiles reader/writer
 - [GDAL](https://gdal.org/) — geospatial raster/vector conversion
-- [MapTiler](https://www.maptiler.com/) — tile hosting and conversion
 
 
 ## Licence
