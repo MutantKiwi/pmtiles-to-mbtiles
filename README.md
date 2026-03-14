@@ -51,8 +51,8 @@ Nepal_border.pmtiles  →  Nepal_border.mbtiles
 
 ```
 Detected tile format: webp (raw: TileType.WEBP)
-  Name:    Nepal_border
-  Output:  Nepal_border.mbtiles
+  Name:    example1
+  Output:  example1.mbtiles
   Bounds:  80.947266,27.683528,88.264160,30.505484
   Zoom:    0 → 14
   500 tiles written...
