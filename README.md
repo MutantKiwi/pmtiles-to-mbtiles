@@ -5,6 +5,7 @@ A simple Python script to convert [PMTiles](https://protomaps.com/docs/pmtiles) 
 
 ## Features
 
+- Converts all PMTiles in a folder
 - Auto-detects tile format from the PMTiles header (`png`, `jpeg`, `webp`, `avif`, `pbf`)
 - Copies all embedded metadata (name, description, attribution, bounds, zoom levels)
 - Correctly flips tile Y coordinates from XYZ (PMTiles) to TMS (MBTiles)
